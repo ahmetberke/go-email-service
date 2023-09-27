@@ -1,0 +1,9 @@
+queue:
+  email:
+    emailCreated:
+      channelCount: 1
+      prefetchCount: 10
+      exchange: "email.events"
+      exchangeType: "topic"
+      routingKey: "emailCreated"
+      queue: "email.event.emailCreated"

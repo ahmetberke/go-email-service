@@ -9,11 +9,15 @@ import (
 const (
 	configPath = "./resources"
 	configType = "yaml"
-	configName = "application"
 )
 
 type ConfigManager interface {
 	GetRabbitConfig() RabbitConfig
+}
+
+type configManager struct {
+	applicationConfig ApplicationConfig
+	queuesConfig      QueuesConfig
 }
 
 func NewConfigManager() ConfigManager {
@@ -23,35 +27,22 @@ func NewConfigManager() ConfigManager {
 	}
 	viper.AddConfigPath(configPath)
 	viper.SetConfigType(configType)
-	viper.SetConfigName(configName)
-	config := readConf(env)
-	return &config
+	config := readApplicationConf(env)
+	return &configManager{applicationConfig: config}
 }
 
-type Config struct {
-	Rabbit RabbitConfig `yaml:"rabbit"`
+func (c configManager) GetRabbitConfig() RabbitConfig {
+	return c.applicationConfig.Rabbit
 }
 
-type RabbitConfig struct {
-	Host           string `yaml:"host"`
-	Port           int    `yaml:"port"`
-	VirtualHost    string `yaml:"virtualHost"`
-	ConnectionName string `yaml:"connectionName"`
-	Username       string `yaml:"username"`
-	Password       string `yaml:"password"`
-}
-
-func (c Config) GetRabbitConfig() RabbitConfig {
-	return c.Rabbit
-}
-
-func readConf(env string) Config {
+func readApplicationConf(env string) ApplicationConfig {
+	viper.SetConfigName("application")
 	err := viper.ReadInConfig()
 	if err != nil {
 		log.Panicf("Couldn't load application configs, cannot start. Error details : %s", err.Error())
 	}
 
-	var conf Config
+	var conf ApplicationConfig
 	c := viper.Sub(env)
 	err = c.Unmarshal(&conf)
 	if err != nil {
