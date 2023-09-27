@@ -14,6 +14,7 @@ const (
 type ConfigManager interface {
 	GetRabbitConfig() RabbitConfig
 	GetQueuesConfig() QueuesConfig
+	GetSMTPConfig() SMTPConfig
 }
 
 type configManager struct {
@@ -39,6 +40,10 @@ func (c configManager) GetRabbitConfig() RabbitConfig {
 
 func (c configManager) GetQueuesConfig() QueuesConfig {
 	return c.queuesConfig
+}
+
+func (c configManager) GetSMTPConfig() SMTPConfig {
+	return c.applicationConfig.SMTP
 }
 
 func readApplicationConf(env string) ApplicationConfig {

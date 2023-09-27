@@ -6,6 +6,11 @@ local:
     connectionName: "go-rabbitmq-consumer-app"
     username: "guest"
     password: "guest"
+  smtp:
+    host: "smtp.gmail.com"
+    port: 587
+    user: "...@gmail.com"
+    password: "..."
 docker:
   rabbit:
     host: "rabbitmq"
@@ -14,3 +19,8 @@ docker:
     connectionName: "go-rabbitmq-consumer-app"
     username: "guest"
     password: "guest"
+  smtp:
+    host: "smtp.gmail.com"
+    port: 587
+    user: "...@gmail.com"
+    password: "..."

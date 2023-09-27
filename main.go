@@ -13,7 +13,8 @@ func main() {
 	rabbitConfig := configurationManager.GetRabbitConfig()
 	queuesConfig := configurationManager.GetQueuesConfig()
 
-	emailConsumer := email.Consumer{}
+	emailService := email.NewService(configurationManager.GetSMTPConfig())
+	emailConsumer := email.NewConsumer(emailService)
 
 	rabbitClient := rabbit.NewRabbitClient(rabbitConfig, queuesConfig, emailConsumer)
 	defer rabbitClient.CloseConnection()

@@ -2,6 +2,7 @@ package configs
 
 type ApplicationConfig struct {
 	Rabbit RabbitConfig `yaml:"rabbit"`
+	SMTP   SMTPConfig   `yaml:"smtp"`
 }
 
 type RabbitConfig struct {
@@ -11,6 +12,13 @@ type RabbitConfig struct {
 	ConnectionName string `yaml:"connectionName"`
 	Username       string `yaml:"username"`
 	Password       string `yaml:"password"`
+}
+
+type SMTPConfig struct {
+	Host     string `yaml:"host"`
+	Port     int    `yaml:"port"`
+	User     string `yaml:"user"`
+	Password string `yaml:"password"`
 }
 
 type QueuesConfig struct {
