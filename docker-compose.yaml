@@ -10,6 +10,12 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+  app:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    volumes:
+      - .:/opt/app/api
 
 networks:
   default:

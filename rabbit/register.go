@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/ahmetberke/go-email-service/configs"
 	"github.com/streadway/amqp"
+	"log"
 )
 
 type QueueConsumerMap map[configs.QueueConfig]func(delivery amqp.Delivery) error
@@ -16,9 +17,11 @@ func (c *Client) getRegisteredQueueConsumer() QueueConsumerMap {
 	}
 	queueConsumerMap := make(QueueConsumerMap)
 
+	log.Printf("CONSUMER : %s", c.queuesConfig.Email.EmailCreated)
 	queueConsumerMap[c.queuesConfig.Email.EmailCreated] = c.emailConsumer.ConsumeEmailCreated
 
-	return queueConsumerMap
+	qcm = queueConsumerMap
+	return qcm
 }
 
 func FindConsumer(routingKey string) (func(delivery amqp.Delivery) error, error) {

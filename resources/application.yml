@@ -1,6 +1,14 @@
 local:
   rabbit:
-    host: "127.0.0.1"
+    host: "localhost"
+    port: 5672
+    virtualHost: "/"
+    connectionName: "go-rabbitmq-consumer-app"
+    username: "guest"
+    password: "guest"
+docker:
+  rabbit:
+    host: "rabbitmq"
     port: 5672
     virtualHost: "/"
     connectionName: "go-rabbitmq-consumer-app"

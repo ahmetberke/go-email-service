@@ -15,11 +15,11 @@ type Client struct {
 	emailConsumer email.Consumer
 }
 
-func NewRabbitClient(rabbitConfig configs.RabbitConfig, queuesConfig configs.QueuesConfig) *Client {
+func NewRabbitClient(rabbitConfig configs.RabbitConfig, queuesConfig configs.QueuesConfig, emailConsumer email.Consumer) *Client {
 	return &Client{
 		connection:    createConnection(rabbitConfig),
 		queuesConfig:  queuesConfig,
-		emailConsumer: email.Consumer{},
+		emailConsumer: emailConsumer,
 	}
 }
 
@@ -42,6 +42,21 @@ func createConnection(rabbitConfig configs.RabbitConfig) *amqp.Connection {
 
 func getConnectionURL(config configs.RabbitConfig) string {
 	return fmt.Sprintf("amqp://%s:%s@%s:%d/%s", config.Username, config.Password, config.Host, config.Port, config.VirtualHost)
+}
+
+func (c *Client) DeclareExchangeQueueBindings() {
+	channel := c.CreateChannel(0)
+	configs := c.getRegisteredQueueConsumer()
+	for queueConfig, _ := range configs {
+		declareExchange(channel, queueConfig)
+		declareQueue(channel, queueConfig)
+		declareDeadLetterQueue(channel, queueConfig)
+		bindQueue(channel, queueConfig)
+		err := channel.Qos(queueConfig.PrefetchCount, 0, false)
+		if err != nil {
+			log.Panicf("PrefetchCount could not defined. Terminating. Error details: %s", err.Error())
+		}
+	}
 }
 
 func (c *Client) CreateChannel(prefetchCount int) *amqp.Channel {
@@ -90,4 +105,8 @@ func getDeadLetterArgs(queueName string) amqp.Table {
 		"x-dead-letter-exchange":    "",
 		"x-dead-letter-routing-key": queueName + ".deadLetter",
 	}
+}
+
+func (c *Client) CloseConnection() {
+	c.connection.Close()
 }

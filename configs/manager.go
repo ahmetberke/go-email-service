@@ -13,6 +13,7 @@ const (
 
 type ConfigManager interface {
 	GetRabbitConfig() RabbitConfig
+	GetQueuesConfig() QueuesConfig
 }
 
 type configManager struct {
@@ -27,12 +28,17 @@ func NewConfigManager() ConfigManager {
 	}
 	viper.AddConfigPath(configPath)
 	viper.SetConfigType(configType)
-	config := readApplicationConf(env)
-	return &configManager{applicationConfig: config}
+	appConfig := readApplicationConf(env)
+	queuesConfig := readQueuesConfig()
+	return &configManager{applicationConfig: appConfig, queuesConfig: queuesConfig}
 }
 
 func (c configManager) GetRabbitConfig() RabbitConfig {
 	return c.applicationConfig.Rabbit
+}
+
+func (c configManager) GetQueuesConfig() QueuesConfig {
+	return c.queuesConfig
 }
 
 func readApplicationConf(env string) ApplicationConfig {
@@ -56,4 +62,23 @@ func readApplicationConf(env string) ApplicationConfig {
 
 	return conf
 
+}
+
+func readQueuesConfig() QueuesConfig {
+	viper.SetConfigName("rabbit-queue")
+	readConfigErr := viper.ReadInConfig()
+	if readConfigErr != nil {
+		log.Panicf("Couldn't load queues configuration, cannot start. Error details: %s", readConfigErr.Error())
+	}
+	var conf QueuesConfig
+	c := viper.Sub("queue")
+	unMarshalErr := c.Unmarshal(&conf)
+	unMarshalSubErr := c.Unmarshal(&conf)
+	if unMarshalErr != nil {
+		log.Panicf("Configuration cannot deserialize. Terminating. Error details: %s", unMarshalErr.Error())
+	}
+	if unMarshalSubErr != nil {
+		log.Panicf("Configuration cannot deserialize. Terminating. Error details: %s", unMarshalSubErr.Error())
+	}
+	return conf
 }
